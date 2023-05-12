@@ -1,17 +1,21 @@
 # build petclinic image
-FROM maven
+FROM maven:3.8.4-openjdk-17-slim as builder
 
 WORKDIR /app
 
-COPY ./spring-petclinic .
+# Clone the Spring PetClinic repository
+RUN apt-get update && apt-get install -y git
+RUN git clone https://github.com/spring-projects/spring-petclinic.git
 
-RUN mvn package
+WORKDIR /app/spring-petclinic
 
-FROM openjdk:11-jdk-slim
+RUN mvn package -Dmaven.test.skip=true
 
-WORKDIR /app
+FROM openjdk:17-jdk-slim
 
-COPY --from=0 /app/target/*.jar /app/petclinic.jar
+WORKDIR /app/
+
+COPY --from=builder /app/spring-petclinic/target/*.jar /app/petclinic.jar
 
 EXPOSE 8080
 
