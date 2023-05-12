@@ -1,0 +1,55 @@
+# Create a docker-compose file with the following containers: 
+# alpine, mysql, jenkins ,petclinic 
+
+version: '3.5'
+services:
+  alpine:
+    build:
+      context: .
+      dockerfile: Dockerfile.alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8000:8000
+      - 8001:8001
+    networks:
+      - internal
+    depends_on:
+      - petclinic
+      - jenkins
+  mysql:
+    platform: linux/x86_64
+    image: mysql:5.7
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: petclinic
+      MYSQL_USER: petclinic
+      MYSQL_PASSWORD: petclinic
+
+    networks:
+      - internal
+  jenkins:
+    image: jenkins/jenkins
+    volumes:
+      - ./jenkins-data:/var/jenkins_home
+    networks:
+      - internal
+  petclinic:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: Dockerfile.petclinic
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: petclinic
+      MYSQL_USER: petclinic
+      MYSQL_PASSWORD: petclinic
+    networks:
+      - internal
+    depends_on:
+      - mysql
+
+networks:
+  internal:
