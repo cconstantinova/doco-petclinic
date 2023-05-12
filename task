@@ -1,0 +1,9 @@
+Create a docker-compose file with the following containers: 
+alpine, mysql, jenkins, petclinic
+ 
+mysql should store all information inside of the volume, so after recreation data should persist 
+
+communication between mysql, jenkins, petclinic should be non-accessible from outside 
+
+on alpine (using dockerfile) should be installed nginx and reverse-proxy to jenkins to be accessible 
+petclinic should connect to mysql and be accessible through nginx from alpine container 
